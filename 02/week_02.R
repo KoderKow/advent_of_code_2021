@@ -3,14 +3,15 @@ library(tidyverse)
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##                                   Part 1                                 ----
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-d_init <- read_lines("02/data.txt")
+d_init <- read_tsv(
+  file = "02/data.txt",
+  col_names = FALSE
+  )
 
 d <-
   d_init |>
-  enframe(name = "id") |>
-  select(-id) |>
   separate(
-    col = value,
+    col = X1,
     into = c("position", "unit"),
     convert = TRUE
   ) |>
@@ -25,18 +26,15 @@ d <-
       true = "x",
       false = "y"
     )
-  )|>
-  pivot_wider(
-    names_from = group,
-    values_from = unit
   )
 
 d |>
+  group_by(group) |>
   summarize(
-    x = sum(x),
-    y = sum(y),
-    solution = x * y
-  )
+    units = sum(unit)
+  ) |>
+  pull(units) |>
+  prod()
 
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##                                   Part 2                                 ----
