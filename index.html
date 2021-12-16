@@ -449,6 +449,102 @@ co2</code></pre>
 oxygen$decimal * co2$decimal</code></pre>
 <pre><code>## [1] 230</code></pre>
 </div>
+<div id="translate-example-code-for-solution" class="section level3">
+<h3>Translate example code for solution</h3>
+<pre class="r"><code>i &lt;- 1
+i_max &lt;- ncol(d)
+d_oxygen &lt;- d_co2 &lt;- d
+
+while (i &lt;= i_max) {
+  ref_col &lt;- rlang::sym(col_names[i + 1])
+
+  d_oxygen_count &lt;-
+    d_oxygen |&gt;
+    add_count({{ ref_col }}, name = &quot;n&quot;)
+
+  d_co2_count &lt;-
+    d_co2 |&gt;
+    add_count({{ ref_col }}, name = &quot;n&quot;)
+
+  if (nrow(d_oxygen_count) == 1) {
+    ## If there is only one row, do nothing
+    d_oxygen &lt;- d_oxygen_count
+
+  } else if (length(unique(d_oxygen_count$n)) == 1) {
+    ## If all counts are the same, keep the 1&#39;s
+    d_oxygen &lt;-
+      d_oxygen_count |&gt;
+      filter({{ ref_col }} == 1)
+
+    ## If there are no 1&#39;s, do not remove anything
+    if (nrow(d_oxygen) == 0) {
+      d_oxygen &lt;- d_oxygen_count
+    }
+
+  } else {
+    ## Keep the most common value
+    d_oxygen &lt;-
+      d_oxygen_count |&gt;
+      filter(n == max(n))
+  }
+
+  if (nrow(d_co2_count) == 1) {
+    ## If there is only one row, do nothing
+    d_co2 &lt;- d_co2_count
+
+  } else if (length(unique(d_co2_count$n)) == 1) {
+    ## If all counts are the same, keep the 0&#39;s
+    d_co2 &lt;-
+      d_co2_count |&gt;
+      filter({{ ref_col }} == 0)
+
+    ## If there are no 0&#39;s, do not remove anything
+    if (nrow(d_co2) == 0) {
+      d_co2 &lt;- d_co2_count
+    }
+
+  } else {
+    ## Keep the least common value
+    d_co2 &lt;-
+      d_co2_count |&gt;
+      filter(n == min(n))
+  }
+
+  i &lt;- i + 1
+}</code></pre>
+<pre class="r"><code>oxygen &lt;-
+  d_oxygen |&gt;
+  select(-n) |&gt;
+  unite(
+    col = binary,
+    everything(),
+    sep = &quot;&quot;
+  ) |&gt;
+  mutate(decimal = strtoi(binary, base = 2))
+
+oxygen</code></pre>
+<pre><code>## # A tibble: 1 x 2
+##   binary       decimal
+##   &lt;chr&gt;          &lt;int&gt;
+## 1 100111001101    2509</code></pre>
+<pre class="r"><code>co2 &lt;-
+  d_co2 |&gt;
+  select(-n) |&gt;
+  unite(
+    col = binary,
+    everything(),
+    sep = &quot;&quot;
+  ) |&gt;
+  mutate(decimal = strtoi(binary, base = 2))
+
+co2</code></pre>
+<pre><code>## # A tibble: 1 x 2
+##   binary       decimal
+##   &lt;chr&gt;          &lt;int&gt;
+## 1 011010100101    1701</code></pre>
+<pre class="r"><code>oxygen$decimal * co2$decimal</code></pre>
+<pre><code>## [1] 4267809</code></pre>
+</div>
 </div>
 </div>
 </div>

@@ -288,3 +288,103 @@ co2
 oxygen$decimal * co2$decimal
 ```
 
+### Translate example code for solution
+
+```{r}
+i <- 1
+i_max <- ncol(d)
+d_oxygen <- d_co2 <- d
+
+while (i <= i_max) {
+  ref_col <- rlang::sym(col_names[i + 1])
+
+  d_oxygen_count <-
+    d_oxygen |>
+    add_count({{ ref_col }}, name = "n")
+
+  d_co2_count <-
+    d_co2 |>
+    add_count({{ ref_col }}, name = "n")
+
+  if (nrow(d_oxygen_count) == 1) {
+    ## If there is only one row, do nothing
+    d_oxygen <- d_oxygen_count
+
+  } else if (length(unique(d_oxygen_count$n)) == 1) {
+    ## If all counts are the same, keep the 1's
+    d_oxygen <-
+      d_oxygen_count |>
+      filter({{ ref_col }} == 1)
+
+    ## If there are no 1's, do not remove anything
+    if (nrow(d_oxygen) == 0) {
+      d_oxygen <- d_oxygen_count
+    }
+
+  } else {
+    ## Keep the most common value
+    d_oxygen <-
+      d_oxygen_count |>
+      filter(n == max(n))
+  }
+
+  if (nrow(d_co2_count) == 1) {
+    ## If there is only one row, do nothing
+    d_co2 <- d_co2_count
+
+  } else if (length(unique(d_co2_count$n)) == 1) {
+    ## If all counts are the same, keep the 0's
+    d_co2 <-
+      d_co2_count |>
+      filter({{ ref_col }} == 0)
+
+    ## If there are no 0's, do not remove anything
+    if (nrow(d_co2) == 0) {
+      d_co2 <- d_co2_count
+    }
+
+  } else {
+    ## Keep the least common value
+    d_co2 <-
+      d_co2_count |>
+      filter(n == min(n))
+  }
+
+  i <- i + 1
+}
+```
+
+
+```{r}
+oxygen <-
+  d_oxygen |>
+  select(-n) |>
+  unite(
+    col = binary,
+    everything(),
+    sep = ""
+  ) |>
+  mutate(decimal = strtoi(binary, base = 2))
+
+oxygen
+```
+
+
+```{r}
+co2 <-
+  d_co2 |>
+  select(-n) |>
+  unite(
+    col = binary,
+    everything(),
+    sep = ""
+  ) |>
+  mutate(decimal = strtoi(binary, base = 2))
+
+co2
+```
+
+```{r}
+oxygen$decimal * co2$decimal
+```
+
