@@ -173,7 +173,23 @@ library(zoo)</code></pre>
 <pre class="r"><code>d &lt;- &quot;data/01.txt&quot; |&gt;
   read_lines() |&gt;
   as.numeric() |&gt;
-  enframe(value = &quot;x&quot;)</code></pre>
+  enframe(value = &quot;x&quot;)
+
+d</code></pre>
+<pre><code>## # A tibble: 2,000 x 2
+##     name     x
+##    &lt;int&gt; &lt;dbl&gt;
+##  1     1   174
+##  2     2   180
+##  3     3   179
+##  4     4   186
+##  5     5   184
+##  6     6   176
+##  7     7   177
+##  8     8   190
+##  9     9   173
+## 10    10   174
+## # ... with 1,990 more rows</code></pre>
 </div>
 <div id="part-1" class="section level2">
 <h2>Part 1</h2>
@@ -198,7 +214,22 @@ d_1</code></pre>
 
 d_2$y &lt;- rollsum(d$x, 3, align = &quot;left&quot;, fill = 0)
 
-d_2 |&gt;
+d_2</code></pre>
+<pre><code>## # A tibble: 2,000 x 3
+##     name     x     y
+##    &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;
+##  1     1   174   533
+##  2     2   180   545
+##  3     3   179   549
+##  4     4   186   546
+##  5     5   184   537
+##  6     6   176   543
+##  7     7   177   540
+##  8     8   190   537
+##  9     9   173   523
+## 10    10   174   525
+## # ... with 1,990 more rows</code></pre>
+<pre class="r"><code>d_2 |&gt;
   mutate(
     diff = y - lag(y)
   ) |&gt;
@@ -244,7 +275,23 @@ d_2 |&gt;
       true = &quot;x&quot;,
       false = &quot;y&quot;
     )
-  )</code></pre>
+  )
+
+d</code></pre>
+<pre><code>## # A tibble: 1,000 x 3
+##    position  unit group
+##    &lt;chr&gt;    &lt;int&gt; &lt;chr&gt;
+##  1 forward      4 x    
+##  2 forward      6 x    
+##  3 down         8 y    
+##  4 forward      3 x    
+##  5 forward      9 x    
+##  6 down         7 y    
+##  7 down         7 y    
+##  8 down         1 y    
+##  9 forward      1 x    
+## 10 forward      5 x    
+## # ... with 990 more rows</code></pre>
 </div>
 <div id="part-1-1" class="section level2">
 <h2>Part 1</h2>
@@ -298,7 +345,10 @@ col_names &lt;- paste0(
   str_pad(0:n_cols, width = 2, pad = 0)
 )
 
-d &lt;-
+col_names</code></pre>
+<pre><code>##  [1] &quot;col_00&quot; &quot;col_01&quot; &quot;col_02&quot; &quot;col_03&quot; &quot;col_04&quot; &quot;col_05&quot; &quot;col_06&quot; &quot;col_07&quot;
+##  [9] &quot;col_08&quot; &quot;col_09&quot; &quot;col_10&quot; &quot;col_11&quot; &quot;col_12&quot;</code></pre>
+<pre class="r"><code>d &lt;-
   d_init |&gt;
   separate(
     col = X1,
@@ -306,7 +356,23 @@ d &lt;-
     sep = &quot;&quot;,
     convert = TRUE
   ) |&gt;
-  select(-1)</code></pre>
+  select(-1)
+
+d</code></pre>
+<pre><code>## # A tibble: 1,000 x 12
+##    col_01 col_02 col_03 col_04 col_05 col_06 col_07 col_08 col_09 col_10 col_11
+##     &lt;int&gt;  &lt;int&gt;  &lt;int&gt;  &lt;int&gt;  &lt;int&gt;  &lt;int&gt;  &lt;int&gt;  &lt;int&gt;  &lt;int&gt;  &lt;int&gt;  &lt;int&gt;
+##  1      1      1      1      1      1      0      1      1      0      1      1
+##  2      1      0      0      1      1      1      0      0      0      1      1
+##  3      0      1      1      1      0      1      1      1      1      1      0
+##  4      0      1      1      0      1      1      0      1      0      0      1
+##  5      0      0      1      0      1      0      0      0      1      0      1
+##  6      1      1      1      1      0      1      0      0      1      0      0
+##  7      0      1      0      0      0      1      1      1      0      0      1
+##  8      1      0      0      0      0      1      0      0      1      1      1
+##  9      1      1      0      1      0      1      0      1      0      0      0
+## 10      1      0      0      0      0      1      1      0      0      0      1
+## # ... with 990 more rows, and 1 more variable: col_12 &lt;int&gt;</code></pre>
 </div>
 <div id="part-1-2" class="section level2">
 <h2>Part 1</h2>
@@ -322,7 +388,23 @@ d &lt;-
     epsilon = value[which.min(n)]
   )
 
-gamma &lt;-
+d_1</code></pre>
+<pre><code>## # A tibble: 12 x 3
+##    name   gamma epsilon
+##    &lt;chr&gt;  &lt;int&gt;   &lt;int&gt;
+##  1 col_01     1       0
+##  2 col_02     0       1
+##  3 col_03     0       1
+##  4 col_04     1       0
+##  5 col_05     1       0
+##  6 col_06     1       0
+##  7 col_07     0       1
+##  8 col_08     1       0
+##  9 col_09     1       0
+## 10 col_10     0       1
+## 11 col_11     0       1
+## 12 col_12     0       1</code></pre>
+<pre class="r"><code>gamma &lt;-
   paste0(d_1$gamma, collapse = &quot;&quot;) |&gt;
   strtoi(base = 2)
 

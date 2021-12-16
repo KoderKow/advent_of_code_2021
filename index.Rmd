@@ -31,6 +31,8 @@ d <- "data/01.txt" |>
   read_lines() |>
   as.numeric() |>
   enframe(value = "x")
+
+d
 ```
 
 ## Part 1
@@ -55,6 +57,10 @@ d_2 <- d
 
 d_2$y <- rollsum(d$x, 3, align = "left", fill = 0)
 
+d_2
+```
+
+```{r}
 d_2 |>
   mutate(
     diff = y - lag(y)
@@ -93,6 +99,8 @@ d <-
       false = "y"
     )
   )
+
+d
 ```
 
 ## Part 1
@@ -140,6 +148,11 @@ col_names <- paste0(
   str_pad(0:n_cols, width = 2, pad = 0)
 )
 
+col_names
+```
+
+
+```{r}
 d <-
   d_init |>
   separate(
@@ -149,6 +162,8 @@ d <-
     convert = TRUE
   ) |>
   select(-1)
+
+d
 ```
 
 ## Part 1
@@ -166,6 +181,10 @@ d_1 <-
     epsilon = value[which.min(n)]
   )
 
+d_1
+```
+
+```{r}
 gamma <-
   paste0(d_1$gamma, collapse = "") |>
   strtoi(base = 2)
@@ -252,7 +271,6 @@ while (i <= i_max) {
 }
 ```
 
-
 ```{r}
 oxygen <-
   d_oxygen |>
@@ -267,7 +285,6 @@ oxygen <-
 oxygen
 ```
 
-
 ```{r}
 co2 <-
   d_co2 |>
@@ -281,7 +298,6 @@ co2 <-
 
 co2
 ```
-
 
 ```{r}
 ## Matches!
@@ -354,7 +370,6 @@ while (i <= i_max) {
 }
 ```
 
-
 ```{r}
 oxygen <-
   d_oxygen |>
@@ -368,7 +383,6 @@ oxygen <-
 
 oxygen
 ```
-
 
 ```{r}
 co2 <-
