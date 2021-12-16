@@ -1,0 +1,289 @@
+---
+title: "Advent of Code 2021"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::downcute:
+    self_contained: true
+    default_style: "light"
+    downcute_theme: "chaos"
+---
+
+
+```{r setup, include=FALSE}
+## Global options
+knitr::opts_chunk$set(cache = TRUE)
+```
+
+# Packages
+
+```{r, message = FALSE, warning = FALSE}
+library(tidyverse)
+library(zoo)
+```
+
+# Day 1
+
+## Setup
+
+```{r}
+d <- "data/01.txt" |>
+  read_lines() |>
+  as.numeric() |>
+  enframe(value = "x")
+```
+
+## Part 1
+
+```{r}
+d_1 <-
+  d |>
+  mutate(
+    diff = x - lag(x)
+  ) |>
+  summarize(
+    x = sum(diff > 0, na.rm = TRUE)
+  )
+
+d_1
+```
+
+## Part 2
+
+```{r}
+d_2 <- d
+
+d_2$y <- rollsum(d$x, 3, align = "left", fill = 0)
+
+d_2 |>
+  mutate(
+    diff = y - lag(y)
+  ) |>
+  summarize(
+    y = sum(diff > 0, na.rm = TRUE)
+  )
+```
+
+# Day 2
+
+## Setup
+
+```{r}
+d_init <- read_tsv(
+  file = "data/02.txt",
+  col_names = FALSE
+  )
+
+d <-
+  d_init |>
+  separate(
+    col = X1,
+    into = c("position", "unit"),
+    convert = TRUE
+  ) |>
+  mutate(
+    unit = if_else(
+      condition = position == "up",
+      true = unit * -1L,
+      false = unit
+    ),
+    group = if_else(
+      condition = position == "forward",
+      true = "x",
+      false = "y"
+    )
+  )
+```
+
+## Part 1
+
+```{r}
+d |>
+  group_by(group) |>
+  summarize(
+    units = sum(unit)
+  ) |>
+  pull(units) |>
+  prod()
+```
+
+## Part 2
+
+```{r}
+d |>
+  mutate(
+    aim = cumsum(ifelse(group == "y", unit, 0))
+  ) |>
+  filter(group == "x") |>
+  summarize(
+    x = sum(unit),
+    y = sum(unit * aim),
+    solution = x * y
+  )
+```
+
+# Day 3
+
+## Setup
+
+```{r}
+d_init <-
+  read_tsv(
+    file = "data/03.txt",
+    col_names = FALSE
+  )
+
+n_cols <- nchar(d_init$X1[1])
+
+col_names <- paste0(
+  "col_",
+  str_pad(0:n_cols, width = 2, pad = 0)
+)
+
+d <-
+  d_init |>
+  separate(
+    col = X1,
+    into = col_names,
+    sep = "",
+    convert = TRUE
+  ) |>
+  select(-1)
+```
+
+## Part 1
+
+```{r}
+d_1 <-
+  d |>
+  pivot_longer(
+    cols = everything()
+  ) |>
+  count(name, value) |>
+  group_by(name) |>
+  summarize(
+    gamma = value[which.max(n)],
+    epsilon = value[which.min(n)]
+  )
+
+gamma <-
+  paste0(d_1$gamma, collapse = "") |>
+  strtoi(base = 2)
+
+epsilon <-
+  paste0(d_1$epsilon, collapse = "") |>
+  strtoi(base = 2)
+
+gamma * epsilon
+```
+
+## Part 2
+
+### Reproduce Example
+
+Recreating the work and results in the example help build the solution.
+
+```{r}
+example_d_init <- c(
+  "00100", "11110", "10110",
+  "10111", "10101", "01111",
+  "00111", "11100", "10000",
+  "11001", "00010", "01010"
+  ) |>
+  enframe(value = "X1")
+
+example_n_cols <- nchar(example_d_init$X1[1])
+
+example_col_names <- paste0(
+  "col_",
+  str_pad(0:example_n_cols, width = 2, pad = 0)
+)
+
+example_d <-
+  example_d_init |>
+  separate(
+    col = X1,
+    into = example_col_names,
+    sep = "",
+    convert = TRUE
+  ) |>
+  select(-(1:2))
+
+example_d
+```
+
+
+```{r}
+i <- 1
+i_max <- ncol(example_d)
+d_oxygen <- d_co2 <- example_d
+
+while (i <= i_max) {
+  ref_col <- rlang::sym(example_col_names[i + 1])
+
+  d_oxygen_count <-
+    d_oxygen |>
+    add_count({{ ref_col }}, name = "n")
+
+  d_co2_count <-
+    d_co2 |>
+    add_count({{ ref_col }}, name = "n")
+
+  if (length(unique(d_oxygen_count$n)) == 1) {
+    d_oxygen <-
+      d_oxygen_count |>
+      filter({{ ref_col }} == 1)
+
+    d_co2 <-
+      d_co2_count |>
+      filter({{ ref_col }} == 0)
+
+  } else {
+    d_oxygen <-
+      d_oxygen_count |>
+      filter(n == max(n))
+
+    d_co2 <-
+      d_co2_count |>
+      filter(n == min(n))
+  }
+
+  i <- i + 1
+}
+```
+
+
+```{r}
+oxygen <-
+  d_oxygen |>
+  select(-n) |>
+  unite(
+    col = binary,
+    everything(),
+    sep = ""
+  ) |>
+  mutate(decimal = strtoi(binary, base = 2))
+
+oxygen
+```
+
+
+```{r}
+co2 <-
+  d_co2 |>
+  select(-n) |>
+  unite(
+    col = binary,
+    everything(),
+    sep = ""
+  ) |>
+  mutate(decimal = strtoi(binary, base = 2))
+
+co2
+```
+
+
+```{r}
+## Matches!
+oxygen$decimal * co2$decimal
+```
+
