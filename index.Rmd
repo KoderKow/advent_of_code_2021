@@ -20,6 +20,7 @@ knitr::opts_chunk$set(cache = TRUE)
 ```{r, message = FALSE, warning = FALSE}
 library(tidyverse)
 library(zoo)
+library(details)
 ```
 
 # Day 1
@@ -402,3 +403,16 @@ co2
 oxygen$decimal * co2$decimal
 ```
 
+# Reproducability Receipt
+
+```{details, details.summary = "Time Info", echo = FALSE}
+Sys.time()
+```
+
+```{details, details.summary = "Repo Info", echo = FALSE}
+git2r::repository()
+```
+
+```{details, details.summary = "Session Info", echo = FALSE}
+sessioninfo::session_info()
+```
