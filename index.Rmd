@@ -10,7 +10,7 @@ output:
       in_header: header.html
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include = FALSE}
 ## Global options
 knitrhooks::output_max_height()
 knitr::opts_chunk$set(
@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{css}
+```{css, echo = FALSE}
 pre:not(.r) {
   margin-bottom: 50px;
 }
