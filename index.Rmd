@@ -575,7 +575,7 @@ last_board
 bingo_call * bingo_sum
 ```
 
-# Reproducability Receipt
+# Reproducibility Receipt
 
 ```{details, details.summary = "Time Info", echo = FALSE}
 Sys.time()
